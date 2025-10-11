@@ -69,12 +69,12 @@ Here, we introduce quantms-rescoring; an open-source package than enables simmis
 To develop and evaluate the performance of the quantms-rescoring integration with quantms workflow, we selected four publicly available benchmark datasets. Three were obtained from the PRIDE Archive under the identifiers PXD001819 \cite{ramus_spiked_2016}, PXD019643 \cite{marcu_hla_2021}, and PXD026824 \cite{jacob_berger_irs1_2021}, and a TMT-labeled dataset from the CPTAC data portal under PDC000127 \cite{clark_integrated_2019}.
 The PXD001819 standard proteomic dataset contains 48 Sigma UPS1 proteins spiked into a background of yeast cell lysate at nine different concentrations: 0.05, 0.125, 0.25, 0.5, 2.5, 5, 12.5, 25, and 50 fmol/$\mu$L, that can be used to statistically evaluate label-free approaches for identification and quantification performance due to known spike-in protein of different concentrations. PXD019643 is a large-scale immunopeptide dataset of matched HLA-I and HLA-II ligandomes of benign tissues from HLA Ligand Atlas, which has acquired HLA ligandome data from 29 distinct tissues obtained from 21 individuals, surmounting to 1274 LC-MS/MS runs from 225 mostly paired HLA-I (198) and HLA-II (220) samples. We only selected HLA-II data to evaluate performance of enhanced quantms workflow in immunopeptidomics cases. PXD026824 is a post-translational enrichment dataset for phosphorylated proteins, which is used to evaluate performance on the phosphorylation experiments. PDC000127 is a large-scale TMT10plex-labeled clear cell renal cell carcinoma dataset including 230 samples and 575 LC-MS/MS runs from CPTAC repository, and is used to evaluate performance on TMT experiments and explore potential for reanalysis of large scale public datasets.
 
-Figure 1A illustrates the entire quantms analysis workflow, encompassing label-free quantification (LFQ) and isobaric experiments ~\ref{fig:schema}. We evaluated five different quantms workflow settings: (1) Comet, (2) Comet and MSGF+, (3) Comet with quantms-rescoring, (4) Comet and MSGF+ with quantms-rescoring, and (5) Comet, MSGF+, and SAGE with quantms-rescoring to explore multiple search engines and their integration with quantms-rescoring for improved identification and quantification results. SAGE search engine is not considered for immunopeptides experiments due to big memory usage. All search parameters for for each dataset is described in the original publication (Supplemental File SX). For LFQ, TMT and phosphorylation experiments, FDR filter at 1\% threshold was applied at peptide spectrum match (PSM) and protein level. Specifically, the phosphorylation experiment additionally accounted for the rate of local false localization (FLR). For immunopeptides case, FDR filter at 1\% threshold was applied at peptide spectrum match (PSM) and peptide level. The search results from quantms and MaxQuant at the PSM and protein group levels are provided in Supplemental File S1.
+Figure 1A illustrates the entire quantms analysis workflow, encompassing label-free quantification (LFQ) and isobaric experiments ~\ref{fig:schema}. We evaluated five different quantms workflow settings: (1) Comet, (2) Comet and MSGF+, (3) Comet with quantms-rescoring, (4) Comet and MSGF+ with quantms-rescoring, and (5) Comet, MSGF+, and SAGE with quantms-rescoring to explore multiple search engines and their integration with quantms-rescoring for improved identification and quantification results. SAGE search engine is not considered for immunopeptides experiments due to big memory usage. All search parameters for for each dataset is described in the original publication (Supplementary File S1). For LFQ, TMT and phosphorylation experiments, FDR filter at 1\% threshold was applied at peptide spectrum match (PSM) and protein level. Specifically, the phosphorylation experiment additionally accounted for the rate of local false localization (FLR). For immunopeptides case, FDR filter at 1\% threshold was applied at peptide spectrum match (PSM) and peptide level. The search results from quantms and MaxQuant at the PSM and protein group levels are provided in Supplementary File S1.
 
 @Yasset Comment: @Todo: Dai would be good to add a table with the search parameters for each dataset in the supplementary information and also make public the SDRFs? 
 
 \subsection{Rescoring Features and Postprocessing}
-quantms-rescoring computes a broad set of features similar to MS²Rescore by comparing predicted and observed values for (i) retention time from DeepLC and (ii) MS2 fragment‑ion intensities from MS²PIP or AlphaPeptDeep, and integrates these features into the quantms workflow. We further extend this with additional spectrum‑quality features (signal‑to‑noise ratio, spectral entropy, fraction of TIC in the top 10 peaks, weighted m/z standard deviation) summarized in Supplemental Table~\ref{tab:extra_features}, which can be enabled for scenarios such as immunopeptidomics.
+quantms-rescoring computes a broad set of features similar to MS²Rescore by comparing predicted and observed values for (i) retention time from DeepLC and (ii) MS2 fragment‑ion intensities from MS²PIP or AlphaPeptDeep, and integrates these features into the quantms workflow. We further extend this with additional spectrum‑quality features (signal‑to‑noise ratio, spectral entropy, fraction of TIC in the top 10 peaks, weighted m/z standard deviation) summarized in Supplementary Table S1, which can be enabled for scenarios such as immunopeptidomics.
 To enhance compatibility and performance, we implement explicit strategies for calibration, model selection, preprocessing, and feature export. For retention time (RT), each run is calibrated in DeepLC using a subset of PSMs, and the following features are added per PSM: observed RT, predicted RT, RT difference, as well as best per peptide variants (observed retention time best, predicted retention time best, rt diff best). The DeepLC model selected based on the first run is reused for subsequent runs after per‑run calibration \cite{bouwmeester_deeplc_2025}.
 For MS2 intensity features with MS²PIP, spectra are read via OpenMS to ensure consistency with quantms; reporter ions (iTRAQ/TMT) are removed when applicable, spectra are TIC‑normalized, and log2‑transformed. For a given batch, candidate MS²PIP models are compared by the average correlation between predicted and observed intensities; the best model is selected if its average correlation is at least 0.4. Model validity is then checked on a calibration subset by removing decoys, ranking PSMs by score, selecting the top 20\% (default), and requiring at least 70\% of these PSMs to exceed a correlation threshold of 0.6. If these criteria are not met (and not explicitly forced), MS²PIP‑based rescoring is skipped to avoid poor fits.
 For MS2 intensity features with AlphaPeptDeep, we follow an analogous procedure. Predictions are generated from installed or user‑provided models, optionally considering neutral‑loss fragment ions for PTMs. The same calibration and validity checks are applied (defaults as above). AlphaPeptDeep‑derived features quantify agreement between predicted and observed intensities across b/y ions in both log and linear spaces (e.g., Pearson/cosine/dot product, MSE, and distributional summaries).
@@ -96,7 +96,7 @@ To systematically evaluate the performance of the quantms-rescoring-enhanced wor
 
 To compare workflows, significant PSMs were filtered at varying FDR thresholds. As shown in Figure 1 ~\ref{fig:PXD001819_quantmsrescoring}, using consensus scores from two search engines significantly increased identification rates at a fixed FDR threshold. Specifically, combining Comet and MSGF+ improved identified spectra by 17\% over Comet alone, and incorporating MS²PIP and DeepLC features through quantms-rescoring led to an additional 16\% increase. quantms achieved a 28\% improvement in the number of PSM identifications compared to MaxQuant. At the quantification level, including quantms-rescoring–derived features allowed more low-abundance UPS1 proteins to be quantified (Figure 1B), highlighting the contributions of the integrated workflow. Although MaxQuant reported more UPS proteins in 250amol, 500amol and 2500amol, the proteins that were only quantified in MaxQuant were all quantified by match between runs (MBR) rather than from MS/MS. The main reason for this is that quantms used different MBR quality control. Therefore, we can observe that quantms achieved lower coefficients of variation (CV) than MaxQuant, considering only proteins that are quantified in at least 50\% of the replicates (Figure 1C-D). On the other hand, we also found that the variability of proteins quantified were not significantly reduced or increased after enabling quantms scoring.
 
-To better understand the contribution of individual features, we extracted the top 20 feature weights from Percolator (Supplemental Figure 1). Over half of the top-weighted features were derived from quantms-rescoring. Notably, SpecPearsonNorm had a strong positive weight, indicating that a better correlation between predicted and observed intensities improves confidence. Conversely, RtDiffBest had a negative weight, suggesting that large deviations in retention time reduce match quality. Interestingly, peptide length also emerged as a significant positive feature after quantms-rescoring integration, likely because peptide length is an important feature as proxy to deterimine value of other specific features. For instance, for very short peptides, features like pearson correlation could be less valuable and should be ignored.
+To better understand the contribution of individual features, we extracted the top 20 feature weights from Percolator (Figure S1). Over half of the top-weighted features were derived from quantms-rescoring. Notably, SpecPearsonNorm had a strong positive weight, indicating that a better correlation between predicted and observed intensities improves confidence. Conversely, RtDiffBest had a negative weight, suggesting that large deviations in retention time reduce match quality. Interestingly, peptide length also emerged as a significant positive feature after quantms-rescoring integration, likely because peptide length is an important feature as proxy to deterimine value of other specific features. For instance, for very short peptides, features like pearson correlation could be less valuable and should be ignored.
 
 \begin{figure}[ht!]
 	\centering
@@ -112,7 +112,7 @@ We next applied the workflow to a large-scale TMT-labeled dataset from the Clini
 %RG From the figure caption, it seems like the comparison is done for percolator + MSGF+ with/without MS²Rescore. Perhaps it would simplify the entire panel if only data was shown for this comparison?  Data for other combinations could be moved to supplementary. 
 Among these, 59 proteins had abundance levels within the top 10\% (Figure 2C). To assess the biological impact of rescoring, we conducted differential expression analysis using the quantms-rescoring–enhanced workflow. As shown in Figure 2D, 27 newly quantified proteins were significantly differentially expressed. Notably, FOXG1—one of these proteins—has been associated with prognosis in Clear Cell Renal Cell Carcinoma, as reported by Yang et al. \cite{yang_comprehensive_2022}. These findings illustrate that quantms incorporating MS²PIP and DeepLC-derived features enhances not only identification sensitivity but also enables deeper biological insights.
 
-We further examined the rescoring contribution of individual features by analyzing the top 20 support vector machine (SVM) weights from Percolator (Supplemental Figure~\ref{fig:PDC_ms2rescore_weights}). For Comet-based results, SpecPearsonNorm, DotProdIonYNorm, and RtDiffBest were highly weighted. The interpretations of these weights were consistent with those from the label-free dataset. Importantly, peptide length again emerged as a key feature. Similar weight distributions were observed for MSGF+ and SAGE results, confirming the generalizability of these feature effects across different search engines. (Supplemental Figure~\ref{fig:PDC_Go_EA})
+We further examined the rescoring contribution of individual features by analyzing the top 20 support vector machine (SVM) weights from Percolator (Figure S2). For Comet-based results, SpecPearsonNorm, DotProdIonYNorm, and RtDiffBest were highly weighted. The interpretations of these weights were consistent with those from the label-free dataset. Importantly, peptide length again emerged as a key feature. Similar weight distributions were observed for MSGF+ and SAGE results, confirming the generalizability of these feature effects across different search engines. (Supplemental Figure~\ref{fig:PDC_Go_EA})
 
 \begin{figure}[ht!]
 	\centering
@@ -125,12 +125,12 @@ We further examined the rescoring contribution of individual features by analyzi
 \subsection{quantms with quantms-rescoring improves immunopeptidome identification}
 The HLA Ligand Atlas \cite{marcu_hla_2021} (PXD019643) is a comprehensive map of HLA-I and HLA-II-presented peptides from 30 benign tissues, 51 HLA-I alleles, and 86 HLA-II alleles. To further assess the performance of the quantms workflow using quantms-rescoring, we analyzed the HLA Class II data of the HLA Ligand Atlas. Five workflow configurations were evaluated: (1) Comet with Percolator, (2) Comet with quantms-rescoring, (3) Comet and MSGF+ with Percolator, (4) Comet and MSGF combined with quantms-rescoring features, and (5) Comet and MSGF+ combined quantms-rescoring/SNR features, displayed in Figure4 ~\ref{fig:PXD019643_figure4}. 
 %chengxin yasset, we need to illustrate why add SNR features  
-With local peptide-level FDR threshold of 1\% among the technical replicates per sample, integrating MSGF+ with Comet increased the number of identified peptide by 1.6\% compared to using Comet alone. Adding quantms-rescoring features on top of Comet workflow yielded a further 14\% improvement compared to MSGF+ with Comet workflow. Enabling the quantms-rescoring combined with MSGF+ and Comet, the peptide identification improved by an additional 5\% compared to workflows using only Comet and quantms-rescoring. When considering spectra features such as SNR in Supplemental table 1 ~\ref{tab:extra_features}, the peptide identification improved by an additional 0.6\% compared to workflows using MSGF+, Comet and quantms-rescoring.
+With local peptide-level FDR threshold of 1\% among the technical replicates per sample, integrating MSGF+ with Comet increased the number of identified peptide by 1.6\% compared to using Comet alone. Adding quantms-rescoring features on top of Comet workflow yielded a further 14\% improvement compared to MSGF+ with Comet workflow. Enabling the quantms-rescoring combined with MSGF+ and Comet, the peptide identification improved by an additional 5\% compared to workflows using only Comet and quantms-rescoring. When considering spectra features such as SNR in Supplementary Table S1, the peptide identification improved by an additional 0.6\% compared to workflows using MSGF+, Comet and quantms-rescoring.
 To demonstrate the application potential of the quantms pipeline for antigen discovery, we show the number of HLA class II peptides predicted as binder (Figure 4B,C and D). Added quantms-rescoring features to the Comet workflow, enabling the identification of 8,867 additional binding. When quantms-rescoring was enabled in combination with MSGF+ and Comet, an additional 2,821 binding were identified. And the length distributions of HLA class II peptide binders predicted are consistent by different workflows configurations. It displays a local maximum occurring at approximately 15-mers (Figure 4E).
 
-In addition, using local PSM-level FDR threshold of 1\%, integrating MSGF+ with Comet increased the number of identified spectra by 11.7\% compared to using Comet alone. Adding quantms-rescoring features on top of the multi-engine workflow yielded a further 22.8\% improvement, as shown in Supplemental Figure 4~\ref{fig:PXD019643_immunopeptides}.
+In addition, using local PSM-level FDR threshold of 1\%, integrating MSGF+ with Comet increased the number of identified spectra by 11.7\% compared to using Comet alone. Adding quantms-rescoring features on top of the multi-engine workflow yielded a further 22.8\% improvement (Figure S3).
 
-To better understand the impact of quantms-rescoring-derived features on rescoring, we visualized the distributions of decoy PSMs, rejected target PSMs, and accepted target PSMs using the Pearson correlation coefficient (PCC) and retention time error (Supplemental Figure 3C, D). The accepted target PSMs were clearly separated from both decoy and rejected targets based solely on PCC values, and exhibited consistently low retention time deviations. The top 20 feature weights from Percolator, displayed in Supplemental Figure 4~\ref{fig:PXD019643_features}. The features of the MSGF+ search engine carry significant weight, such as SpecEValue, which indicates that when only MSGF+ is used, the gain of quantms-rescoring is limited. However, features from quantms-rescoring occupy a larger weight for Comet search engine, including 9 MS²PIP and 2 DeepLC features. This further illustrates that using consensus identifications by multiple search engines helps to coordinate the differences between different search engines. 
+To better understand the impact of quantms-rescoring-derived features on rescoring, we visualized the distributions of decoy PSMs, rejected target PSMs, and accepted target PSMs using the Pearson correlation coefficient (PCC) and retention time error (Figure S3C,D). The accepted target PSMs were clearly separated from both decoy and rejected targets based solely on PCC values, and exhibited consistently low retention time deviations. The top 20 feature weights from Percolator are displayed in Figure S4. The features of the MSGF+ search engine carry significant weight, such as SpecEValue, which indicates that when only MSGF+ is used, the gain of quantms-rescoring is limited. However, features from quantms-rescoring occupy a larger weight for Comet search engine, including 9 MS²PIP and 2 DeepLC features. This further illustrates that using consensus identifications by multiple search engines helps to coordinate the differences between different search engines. 
 Overall, these results demonstrate the robustness of the quantms workflow in immunopeptidomics, highlighting its ability to leverage machine/deep learning learning-derived features to maximize identification accuracy through multi-engine consensus rescoring.
 
 \begin{figure}[ht!]
@@ -141,7 +141,7 @@ Overall, these results demonstrate the robustness of the quantms workflow in imm
 \end{figure}
 
 \subsection{Enhanced Phosphopeptide Identification and Localization Using quantms-rescoring}
-In addition, we investigated the performance of our quantms workflow with quantms-rescoring on post-translational modification experiments (PXD026824). For phosphoproteomics analyses, different workflow settings were evaluated: (1) Comet + Percolator, (2) Comet + quantms-rescoring, (3) Comet + MSGF+ + Percolator, and (4) Comet + MSGF+ + quantms-rescoring features. As shown in Figure~\ref{fig:PXD026824_quantmsrescoring}, combining search engine consensus results with quantms-rescoring features substantially improves Percolator's ability to discriminate between true and false PSMs. This is evident from the leftward shift in score distributions compared to the Comet-only workflow, indicating improved stringency (Figure 4A). Specifically, incorporating quantms-rescoring features into the two-search-engine consensus increased the number of identified spectra by 24\% compared to consensus identification alone. Previous research suggest that phosphorylated peptides may produce -98 Da phosphoric acid neutral losses. Therefore, we further evaluate the impact of considering neutral loss on re-scoring performance when calculating features. quantms-rescoring with modloss ions increased the number of identified spectra by 3\% compared to without modloss ions. The top 20 feature weights from Percolator, displayed in Supplemental Figure~\ref{fig:phospho_features}, highlight the consistent importance of features such as IonYNorm and DotProdIonYNorm, similar to previous datasets.
+In addition, we investigated the performance of our quantms workflow with quantms-rescoring on post-translational modification experiments (PXD026824). For phosphoproteomics analyses, different workflow settings were evaluated: (1) Comet + Percolator, (2) Comet + quantms-rescoring, (3) Comet + MSGF+ + Percolator, and (4) Comet + MSGF+ + quantms-rescoring features. As shown in Figure~\ref{fig:PXD026824_quantmsrescoring}, combining search engine consensus results with quantms-rescoring features substantially improves Percolator's ability to discriminate between true and false PSMs. This is evident from the leftward shift in score distributions compared to the Comet-only workflow, indicating improved stringency (Figure 4A). Specifically, incorporating quantms-rescoring features into the two-search-engine consensus increased the number of identified spectra by 24\% compared to consensus identification alone. Previous research suggest that phosphorylated peptides may produce -98 Da phosphoric acid neutral losses. Therefore, we further evaluate the impact of considering neutral loss on re-scoring performance when calculating features. quantms-rescoring with modloss ions increased the number of identified spectra by 3\% compared to without modloss ions. The top 20 feature weights from Percolator, displayed in Supplementary Figure~\ref{fig:phospho_features}, highlight the consistent importance of features such as IonYNorm and DotProdIonYNorm, similar to previous datasets.
 
 
 Given the importance of false localization rate (FLR) control in phosphoproteomics, we also assessed the impact of different workflows on phosphopeptide identification at varying false localization rate (FLR) thresholds (Figure 4B, C). After filtering with PSM FDR 0.01 and local FLR 0.01, the consensus workflow with quantms-rescoring features identified 20\% and 23\% more phosphorylated peptides than its counterpart without quantms-rescoring and single search engine. Notably, after filtering with PSM FDR 0.01, FLR 0.01 and protein FDR 0.01, 1,809 phosphorylated peptides were uniquely quantified by the quantms-rescoring enabled workflow compared to without quantms-rescoring. When considering -98 Da neutral losses, 2,191 phosphorylated peptides were uniquely quantified compared to without quantms-rescoring. At the phosphosite level, workflow with quantms-rescoring also uncovered 842 novel protein phosphorylation sites not reported in the other workflow configuration without quantms-rescoring (Figure 4D), and an additional 495 novel protein phosphorylation sites are reported when considering -98 Da neutral losses. Collectively, these results underscore the value of quantms-rescoring in enhancing both identification sensitivity and site-level localization in phosphoproteomics, establishing quantms as a robust solution for large-scale PTM data analysis.
@@ -161,7 +161,7 @@ Advancements in deep learning-based tools have significantly improved the sensit
 Importantly, we provide evidence that the improved identification process via rescoring propagates downstream into quantification, leading to increased numbers of proteins with reliable abundance estimates, as well as enhanced detection of differentially expressed proteins, and enhanced localization of PTMs. %RG Perhaps add some references to publications  that saw similar effects, like https://doi.org/10.1021/acs.jproteome.0c00580 for phospho. %JS: How did you prove reliable quantification? The fmol vs intensity plot would reveal this in the UPS dataset. Also you might need to discuss MaxQuant reporting more peptides in 2500amolsetting
 
 To demonstrate the applicability and advantages of quantms integrated with quantms-rescoring in quantitative proteomics, we performed a series of reanalyses using publicly available large-scale datasets with well-established benchmarks. In label-free experiments, quantms-rescoring–enhanced workflows achieved significant increases in PSM and peptide identification rates while maintaining or improving quantification reproducibility across replicates. For TMT experiments, the integration of quantms-rescoring into quantms increased the number of quantifiable proteins. In more challenging applications, such as immunopeptidomics and phosphoproteomics, the deep learning-based rescoring pipeline consistently yielded higher identification rates and improved sensitivity. % JS: I think you could add/rewrite here that MHCquant2 paper already showed ms2rescore+comet yielded boost in sensitivity and identification rates, but with Multi-Search increased #PSMs even further. An open question remains if these new psms are indeed predicted binder..
-These improvements will contribute to meaningful biological insights, such as phosphosite discovery and the identification of differentially expressed proteins with potential clinical relevance. In addition, we counted the run times with different configurations and the added sensitivity from rescoring does add 15\%-50\% of run time, as shown as Supplemental Table ~\ref{tab:resources_stats}. %JS: We have 5 configurations meantioned in the manuscript but only 3 runtimes per dataset.
+These improvements will contribute to meaningful biological insights, such as phosphosite discovery and the identification of differentially expressed proteins with potential clinical relevance. In addition, we counted the run times with different configurations and the added sensitivity from rescoring does add 15\%-50\% of run time, as shown as Supplementary Table ~\ref{tab:resources_stats}. %JS: We have 5 configurations meantioned in the manuscript but only 3 runtimes per dataset.
 This can be alleviated by increasing the number of quantms-rescoring parallel processes. % Maybe add to this sentence that this is especially easy in nextflow. IMHO it does not add a lot
 %RG Agreed! The paralelization and scalability of this work actually alleviate this problem a little bit.
 
@@ -178,116 +178,7 @@ R.G., L.M., and R.B. acknowledge funding from [12B7123N,G010023N,G028821N,12A6L2
 \bibliography{references}  % references.bib file contains your bibliography
 
 
-\renewcommand\thefigure{S\arabic{figure}}
-\setcounter{figure}{0}
-
-\begin{figure}[ht!]
-	\centering
-	\includegraphics[width=1\textwidth]{figures//LFQ_weights.png}
-	\caption{The weights that Percolator assigns to different features of the search engine feature vector in MSGF+ (A), Comet (B), and SAGE (C) combined with Percolator settings from PXD001819. The more different from zero a weight is (both positive and negative), the more important that feature is in the final Percolator classification.}
-	\label{fig:PXD001819_svm_weights}
-\end{figure}
-
-\begin{figure}[ht!]
-	\centering
-	\includegraphics[width=1\textwidth]{figures//CPTAC_weights.png}
-	\caption{The top 20 normalized weights from Percolator for MSGF+ (A), Comet (B), and SAGE (C) identification results from PDC000125.}
-	\label{fig:PDC_ms2rescore_weights}
-\end{figure}
-
-\begin{figure}[ht!]
-	\centering
-	\includegraphics[width=1\textwidth]{figures//ego_results_alluvial.png}
-	\caption{The Go enrichment analysis for MSGF+\&Comet with quantms-rescoring. The Sankey diagram shows biological process term of the genes are uniquely reported by MSGF+\&Comet with quantms-rescoring compared without quantms-rescoring.}
-	\label{fig:PDC_Go_EA}
-\end{figure}
-
-\begin{figure}[ht!]
-	\centering
-	\includegraphics[width=1\textwidth]{figures//PXD019643.png}
-	\caption{Comparison of immunopeptides identification results for different workflow settings on PXD019643. (A) Line plot showing the number of spectra identified for four workflow settings at different PSM FDR levels. (B) Percentage of unique identified peptides using different workflow settings. Density plots showing the distribution of the smallest retention time error between observed and predicted retention time (C) and the Pearson correlation between observed and predicted peak intensities (D) for each PSM split into decoys (red), rejected targets with q-value $>$0.01 (blue), and accepted targets from individual support and consensus support with q-value $<$0.01 (green). Note that the rejected target distribution coincides with the decoy distribution. The pronounced spike at Pearson correlation = 0 reflects spectrum comparisons in which all predicted or observed peaks have zero intensity, causing a division-by-zero situation that leaves the Pearson correlation undefined.}
-	\label{fig:PXD019643_immunopeptides}
-\end{figure}
-
-\begin{figure}[ht!]
-	\centering
-	\includegraphics[width=1\textwidth]{figures//PXD019643_weights.png}
-	\caption{The top 20 normalized weights from Percolator for MSGF+ (A) and Comet (B) identification results in the PXD019643 dataset.}
-	\label{fig:PXD019643_features}
-\end{figure}
-%RG: An implementation detail. I noticed that the MSGF+ e-value has a very high absolute feature weight compared to the others. It might be better to take the natural logarithm of the e-value before passing it to the rescoring engine. This is already done for the Comet 'expect' value.
-\begin{figure}[ht!]
-	\centering
-	\includegraphics[width=1\textwidth]{figures//phos_peptdeep_weights.png}
-	\caption{The top 20 normalized weights from Percolator for MSGF+ (A) and Comet (B) identification results in the PXD026824 dataset.}
-	\label{fig:phospho_features}
-\end{figure}
-
-
-\renewcommand\thetable{S\arabic{table}}
-\setcounter{table}{0}
-
-\begin{table}[h!]
-	\centering
-	\caption{Runtime, memory, and CPU consumption for different configurations. The memory and CPU values represent the maximum resources required for a single job. The quantms workflow was  run in a 64 cluster queue.}
-	\begin{tabular}{|p{3.5cm}|p{10cm}|}
-		\hline
-		\textbf{Features} & \textbf{Definition} \\
-		\hline
-		signal to noise & The signal-to-noise ratio calculated as the maximum intensity divided by the root mean square deviation of the intensities for a spectrum. \\
-		\hline
-		spectral entropy  & The entropy of normalized intensity\\
-		\hline
-		fraction tic top 10 & The intensity fraction of top 10 peaks for total ion current\\
-		\hline
-		weighted std mz & The standard deviation of weighted m/z  \\
-		\hline
-	\end{tabular}
-	\label{tab:extra_features}
-\end{table}
-
-\section*{Abbreviations}
-\begin{description}
-\item[CPTAC] Clinical Proteomic Tumor Analysis Consortium
-\item[CV] Coefficient of variation
-\item[DeepLC] Retention time prediction model
-\item[FLR] False localization rate
-\item[FDR] False discovery rate
-\item[HLA] Human leukocyte antigen
-\item[LFQ] Label-free quantification
-\item[MBR] Match between runs
-\item[MS2] Tandem mass spectrometry (fragmentation stage)
-\item[PEP] Posterior error probability
-\item[PSM] Peptide-spectrum match
-\item[PTM] Post-translational modification
-\item[RT] Retention time
-\item[SNR] Signal-to-noise ratio
-\item[SVM] Support vector machine
-\item[TIC] Total ion current
-\item[TMT] Tandem mass tag
-\end{description}
-
-\begin{table}[h!]
-	\centering
-	\caption{Runtime, memory, and CPU consumption for different configurations. The memory and CPU values represent the maximum resources required for a single job. The quantms workflow was  run in a 64 cluster queue.}
-	\begin{tabular}{|c|c|c|c|c|}
-		\hline
-		Datasets & Configuration & Runtime& Memory & CPU \\
-		\hline
-		PDC000127 & Comet\&MSGF+\&MS²Rescore & 9h39m & 30G & 7 \\
-		PDC000127 & Comet\&MSGF+ & 6h28m & 8G & 4 \\
-		PDC000127 & Comet & 5h10m & 8G & 4 \\
-		PXD019643 & Comet\&MSGF+\&MS²Rescore & 15h57m & 20G & 8 \\
-		PXD019643 & Comet\&MSGF+ & 13h09m & 5.5G & 4 \\
-		PXD019643 & Comet & 2h05m & 5.5G & 4 \\
-		PXD026824 & Comet\&MSGF+\&MS²Rescore & 2h05m & 66G & 8 \\
-		PXD026824 & Comet\&MSGF+ & 1h17m & 48.4G & 4 \\
-		PXD026824 & Comet & 24m & 48.4G & 4 \\
-		\hline
-	\end{tabular}
-	\label{tab:resources_stats}
-\end{table}
-%RG How is the CPU requirement determined for each dataset/configuration? I would expect run times to change significantly on the amount of CPU threads that are supplied to the job. Would this dependency between CPUs and runtime make comparisons difficult from this table? Perhaps something like "CPU hours" would be a better runtime metric?
+% Supplementary materials moved to supplementary.tex
 
 \end{document}
 
