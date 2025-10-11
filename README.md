@@ -1,4 +1,4 @@
-# quantms-rescoring and multi-engine searching enable deep proteome coverage across quantitative proteomics, immunopeptidomics, and phosphoproteomics
+### quantms-rescoring and multi-engine searching enable deep proteome coverage across quantitative proteomics, immunopeptidomics, and phosphoproteomics
 
 This repository contains the manuscript and supporting materials for the research paper "quantms, ms2rescore and multiple search engines enables deep proteome coverage across protein quantification, immunopeptidomics, and phosphoproteomics experiments" by:
 
