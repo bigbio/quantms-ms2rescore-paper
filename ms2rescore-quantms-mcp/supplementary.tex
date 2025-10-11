@@ -8,6 +8,8 @@
 \usepackage{authblk}
 \usepackage{caption}
 \usepackage{subfigure}
+\usepackage{tabularx}
+\usepackage{array}
 \usepackage[numbers, sort]{natbib}
 
 % Title and Author Setup (same as main)
@@ -63,13 +65,6 @@
 
 \begin{figure}[ht!]
 \centering
-\includegraphics[width=1\textwidth]{figures//ego_results_alluvial.png}
-\caption{The GO enrichment analysis for MSGF+\&Comet with quantms-rescoring. The Sankey diagram shows biological process term of the genes are uniquely reported by MSGF+\&Comet with quantms-rescoring compared without quantms-rescoring.}
-\label{fig:PDC_Go_EA}
-\end{figure}
-
-\begin{figure}[ht!]
-\centering
 \includegraphics[width=1\textwidth]{figures//PXD019643.png}
 \caption{Comparison of immunopeptides identification results for different workflow settings on PXD019643. (A) Line plot showing the number of spectra identified for four workflow settings at different PSM FDR levels. (B) Percentage of unique identified peptides using different workflow settings. Density plots showing the distribution of the smallest retention time error between observed and predicted retention time (C) and the Pearson correlation between observed and predicted peak intensities (D) for each PSM split into decoys (red), rejected targets with q-value $>$0.01 (blue), and accepted targets from individual support and consensus support with q-value $<$0.01 (green). Note that the rejected target distribution coincides with the decoy distribution. The pronounced spike at Pearson correlation = 0 reflects spectrum comparisons in which all predicted or observed peaks have zero intensity, causing a division-by-zero situation that leaves the Pearson correlation undefined.}
 \label{fig:PXD019643_immunopeptides}
@@ -87,6 +82,13 @@
 \includegraphics[width=1\textwidth]{figures//phos_peptdeep_weights.png}
 \caption{The top 20 normalized weights from Percolator for MSGF+ (A) and Comet (B) identification results in the PXD026824 dataset.}
 \label{fig:phospho_features}
+\end{figure}
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=1\textwidth]{figures//ego_results_alluvial.png}
+\caption{The GO enrichment analysis for MSGF+\&Comet with quantms-rescoring. The Sankey diagram shows biological process term of the genes are uniquely reported by MSGF+\&Comet with quantms-rescoring compared without quantms-rescoring.}
+\label{fig:PDC_Go_EA}
 \end{figure}
 
 % Supplementary Tables
@@ -131,6 +133,26 @@ PXD026824 & Comet & 24m & 48.4G & 4 \\
 \hline
 \end{tabular}
 \label{tab:resources_stats}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\caption{Experiment metadata and search tolerances (from SDRF). Columns: project accession, analytical method, instrument, fragmentation, tolerances (precursor/fragment), protease, modifications.}
+\begin{tabular}{|c|c|c|c|c|c|>{\centering\arraybackslash}p{5.5cm}|}
+\hline
+Project & Method & Instrument & Fragmentation & Tolerances & Protease & Modifications \\
+\hline
+PXD001819 & LFQ & \shortstack[c]{LTQ O.\\Velos} & CID & \shortstack[c]{20 ppm\\0.5 Da} & Trypsin/P & \shortstack[c]{Carb (C)\\Ox (M)\\Ac} \\
+\hline
+PDC000127 & TMT & \shortstack[c]{O. Fusion\\Lumos} & HCD & \shortstack[c]{20 ppm\\20 ppm} & Trypsin & \shortstack[c]{Carb (C)\\TMT\\Ox (M)\\Ac} \\
+\hline
+PXD019643 & Immuno & \shortstack[c]{O. Fusion\\Lumos} & HCD & \shortstack[c]{5 ppm\\0.02 Da} & Unspecific & \shortstack[c]{Carb (C)\\Ox (M)} \\
+\hline
+PXD026824 & Phospho & \shortstack[c]{O. Fusion\\Lumos} & HCD & \shortstack[c]{20 ppm\\0.03 Da} & Trypsin & \shortstack[c]{Carb (C)\\Ox (M)\\Ac\\Phos} \\
+\hline
+\end{tabular}
+\caption*{\footnotesize Acronyms: Carb = Carbamidomethyl; Ox = Oxidation; Ac = Acetyl; Phos = Phosphorylation; TMT = Tandem Mass Tag.}
+\label{tab:experiment_metadata}
 \end{table}
 
 \end{document}
